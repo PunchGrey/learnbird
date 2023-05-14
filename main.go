@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/spf13/viper"
 )
@@ -13,13 +11,15 @@ func main() {
 	config.BindEnv("mongo_password", "LB_MONGO_PASSWORD")
 	config.BindEnv("mongo_user", "LB_MONGO_USER")
 	config.BindEnv("depth", "LB_DEPTH")
+	config.BindEnv("telegram_apitoken", "LB_TELEGRAM_APITOKEN")
 
 	mongo_url := config.GetString("mongo_url")
 	mongo_password := config.GetString("mongo_password")
 	mongo_user := config.GetString("mongo_user")
 	depth := config.GetInt64("depth")
+	telegram_apitoken := config.GetString("telegram_apitoken")
 
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
+	bot, err := tgbotapi.NewBotAPI(telegram_apitoken)
 	if err != nil {
 		panic(err)
 	}
