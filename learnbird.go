@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
 	"sync"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -18,13 +20,23 @@ type Set struct {
 var state = make(map[int64]Set)
 var mutex = &sync.Mutex{}
 
+func randArray(words []Word) {
+	rand.Seed(time.Now().UnixNano())
+	// Fisher-Yates algorithm
+	for i := len(words) - 1; i > 0; i-- {
+		j := rand.Intn(i + 1)
+		words[i], words[j] = words[j], words[i]
+	}
+}
+
 func increaseState(idUser int64, client *mongo.Client, depth int64) {
 	words := getData(client, "user_"+strconv.FormatInt(idUser, 10), depth)
+	randArray(words)
 	mutex.Lock()
 	defer mutex.Unlock()
 	state[idUser] = Set{words, 0, len(words), 0}
-
 }
+
 func decreaseState(idUser int64) {
 	mutex.Lock()
 	defer mutex.Unlock()
