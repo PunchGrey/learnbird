@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -52,15 +53,46 @@ func askWord(idUser int64) string {
 	return out
 }
 
-func checkWord(idUser int64, word string) string {
+func prepareCompare(word string) string {
+	listSymbols := []string{".", ",", "!", "?", " "}
+
+	out := strings.ToLower(word)
+	for _, symbol := range listSymbols {
+		out = strings.Trim(out, symbol)
+	}
+	return out
+}
+
+func compareSentences(strOriginal string, strReference string) (string, bool) {
+	out := "Wrong! Correct: \n"
+	flag := true
+
+	strOriginal = strings.ReplaceAll(strOriginal, "   ", " ")
+	strOriginal = strings.ReplaceAll(strOriginal, "  ", " ")
+	arrOriginal := strings.Split(strOriginal, " ")
+	arrReference := strings.Split(strReference, " ")
+	if len(arrOriginal) != len(arrReference) {
+		return fmt.Sprintf("%s <b>%s</b>", out, strReference), false
+	}
+	for i, word := range arrOriginal {
+		if prepareCompare(word) != prepareCompare(arrReference[i]) {
+			out = out + fmt.Sprintf("<b>%s</b> ", arrReference[i])
+			flag = false
+		} else {
+			out = out + fmt.Sprintf("%s ", arrReference[i])
+		}
+	}
+	return out, flag
+}
+
+func checkAnswer(idUser int64, word string) string {
 	mistake := 0
 	var out string
 	if set, ok := state[idUser]; ok {
-		if set.words[set.index].Eng != word {
-			mistake = 1
-			out = "Wrong! Correct: " + set.words[set.index].Eng
-		} else {
+		if out, ok = compareSentences(word, set.words[set.index].Eng); ok {
 			out = "Wow, correct answer! \n"
+		} else {
+			mistake = 1
 		}
 		set.index++
 		set.mistakes += mistake
@@ -70,15 +102,9 @@ func checkWord(idUser int64, word string) string {
 	} else {
 		return "something wrong, try to write /help"
 	}
-	//test
-	fmt.Println("index: ", state[idUser].index, " len: ", state[idUser].len)
 	if state[idUser].index >= state[idUser].len {
 		out = fmt.Sprintf("%s \nYou have finished the task! \n %d mistakes from %d", out, state[idUser].mistakes, state[idUser].len)
-		//test
-		fmt.Println(out)
 		decreaseState(idUser)
-		//test
-		fmt.Println("after delete", out)
 	} else {
 		out = fmt.Sprintf("%s \n %s", out, askWord(idUser))
 	}

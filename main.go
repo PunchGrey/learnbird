@@ -63,7 +63,8 @@ func main() {
 			increaseState(update.Message.From.ID, client, depth)
 			msg.Text = askWord(update.Message.From.ID)
 		default:
-			msg.Text = checkWord(update.Message.From.ID, update.Message.Text)
+			msg.ParseMode = "HTML"
+			msg.Text = checkAnswer(update.Message.From.ID, update.Message.Text)
 		}
 		// We'll also say that this message is a reply to the previous message.
 		// For any other specifications than Chat ID or Text, you'll need to
