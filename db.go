@@ -22,7 +22,7 @@ func connection(url string, user string, password string) *mongo.Client {
 		Username: user,
 		Password: password,
 	}
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017").SetAuth(auth)
+	clientOptions := options.Client().ApplyURI(url).SetAuth(auth)
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		log.Println("error connection:", err)
