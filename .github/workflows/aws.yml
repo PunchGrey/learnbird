@@ -27,10 +27,6 @@
 name: Deploy to Amazon ECS
 
 on:
-  release:
-    types: [published,released]
-
-on:
   push:
     tags:
       - 'v*.*.*'
